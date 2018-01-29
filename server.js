@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const user = require('./models/user');
+var _ = require('lodash');
 
 var app = express();
 var port =  process.env.PORT || 3000;
@@ -59,7 +60,7 @@ apiRoutes.post('/authenticate',(req,res)=>{
                 admin:doc.admin
             }
             var token = jwt.sign(payload,app.get('superSecret'),{
-                expiresIn:1
+                expiresIn:'1d'
             });
             res.status(200).json({
                 success:true,
@@ -95,9 +96,11 @@ apiRoutes.use((req,res,next)=>{
 
 
 apiRoutes.get('/user',(req,res)=>{
-    user.find({}).then((doc)=>{
-        console.log(req.decoded);
+    user.find({},{'password':0}).then((doc)=>{
+        console.log(doc[0]);
         res.json(doc);
+    }).catch((e)=>{
+        res.send(e.message);
     });
 });
 
